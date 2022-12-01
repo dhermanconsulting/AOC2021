@@ -2,6 +2,15 @@
 #include <assert.h>
 #include <stdlib.h>
 
+int comp (const void *a,const void *b)
+{
+
+    int x = (*(int *)a);
+    int y = (*(int *)b);
+
+    return (y-x);
+}
+
 int main(int argc, char *argv[]) {
 
     assert(argc == 2 && "Must provide an argument => input.txt path");
@@ -16,35 +25,48 @@ int main(int argc, char *argv[]) {
 
     // Read in the file and calories
 
-    char buffer[255];
+    char buffer[255] ={0};
 
-    // Zero Array
-    int i;
-    for(i = 0; i < 255; i++){
-        buffer[i] = 0;
-    }
+    int allTotals[5000] = {0};
 
-    // First Puzzle
-    int maxCalories = 0;
-    int currentElfCalories = 0;
+    int currentElf = 0;
+    int currentElfTotal = 0;
+
     while(fgets(buffer, sizeof(buffer), inputFile) != NULL){
 
         if(buffer[0] == (char) '\n') {
 
-            if(currentElfCalories > maxCalories) {
-                maxCalories = currentElfCalories;
-            }
+            allTotals[currentElf] = currentElfTotal;
 
-            currentElfCalories = 0;
+            currentElfTotal = 0; // Reset the current elf
+            currentElf++;// Increment the currentElf pointer
         }
 
-        long int line = strtol(buffer, NULL, 0);
+        int line = (int) strtol(buffer, NULL, 0);
 
-        currentElfCalories += line;
+        currentElfTotal += line;
 
     }
 
-    // maxCalories contains the answer
+    fclose(inputFile);
 
-        return 0;
+    int numElements = sizeof(allTotals)/sizeof(*allTotals);
+
+    qsort(allTotals, numElements, sizeof(int), comp);
+
+    printf("The elf with the most calories has: %i\n", allTotals[0]);
+
+    int showTop = 3;
+    int topTotal = 0;
+
+    int i = 0;
+    for(i = 0; i < showTop; i++) {
+
+        topTotal += allTotals[i];
+
+    }
+
+    printf("The top %i elves are carrying a total of %i\n", showTop, topTotal);
+
+    return 0;
 }
